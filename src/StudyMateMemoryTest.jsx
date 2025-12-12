@@ -30,30 +30,33 @@ const StudyMateMemoryTest = () => {
   };
 
   // Timer effect
-  useEffect(() => {
-    if (stage === 'memorize' || stage === 'recall') {
-      timerRef.current = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            clearInterval(timerRef.current);
-            if (stage === 'memorize') {
-              // Shuffle emojis once when transitioning to recall stage
-              const shuffled = [...selectedEmojis].sort(() => Math.random() - 0.5);
-              setShuffledEmojis(shuffled);
-              setStage('recall');
-              setTimeLeft(30);
-            } else {
+useEffect(() => {
+  if (stage === 'memorize' || stage === 'recall') {
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          if (stage === 'memorize') {
+            // Shuffle emojis once when transitioning to recall stage
+            const shuffled = [...selectedEmojis].sort(() => Math.random() - 0.5);
+            setShuffledEmojis(shuffled);
+            setStage('recall');
+            setTimeLeft(30);
+          } else if (stage === 'recall') {
+            // Force evaluation when time runs out
+            setTimeout(() => {
               evaluateResults();
-            }
-            return 0;
+            }, 0);
           }
-          return prev - 1;
-        });
-      }, 1000);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
-      return () => clearInterval(timerRef.current);
-    }
-  }, [stage, selectedEmojis]);
+    return () => clearInterval(timerRef.current);
+  }
+}, [stage, selectedEmojis, userOrder]);
 
   // Handle emoji selection during recall
   const handleEmojiClick = (emoji) => {
